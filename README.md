@@ -1,8 +1,8 @@
-#Zappos dataset classifier
-##Input
+# Zappos dataset classifier
+## Input
 ![sandal](sandal.jpg)
 
-##Output
+## Output
 `Sandal`
 
 [UT zappoa dataset](http://vision.cs.utexas.edu/projects/finegrained/utzap50k/) has shoe images collected from Zappos.com. There are several types of labels on the dataset but the one we use in this study are the following classes in the dataset:
@@ -41,5 +41,5 @@ Classes: [shoes, boots, sandals, slippers]
 [torch.CudaTensor of size 1x4]
 ````
 
-##Requirements
+## Requirements
 Zappos dataset.
