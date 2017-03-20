@@ -91,51 +91,51 @@ for epoch = 1, params.epoch do
 		print(string.format("Found model %s. Skipping epoch %d", modelName, epoch))
 		vggmodel = torch.load(modelName)
 	else
-			print(string.format("Training for epoch %d", epoch))
-			local shuff_index = torch.randperm(#train)
-			for i = 1, #train, params.batchSize do
-					local j = shuff_index[i]
-					local endInd = math.min(j + params.batchSize - 1, #train)
-					local batch = loadBatch(utils.subrange(train, j, endInd))
-					local inputs = zeromean(batch:double()):cuda()
-					local labels = trainL[{{j, endInd}}]:double():clone():cuda()
+		print(string.format("Training for epoch %d", epoch))
+		local shuff_index = torch.randperm(#train)
+		for i = 1, #train, params.batchSize do
+				local j = shuff_index[i]
+				local endInd = math.min(j + params.batchSize - 1, #train)
+				local batch = loadBatch(utils.subrange(train, j, endInd))
+				local inputs = zeromean(batch:double()):cuda()
+				local labels = trainL[{{j, endInd}}]:double():clone():cuda()
 					
-					local weights, grad = vggmodel:getParameters()
-					local feval = function(x)
-						collectgarbage()
-						if x ~= weights then
-							weights:copy(x)
-						end
-						grad:zero()
-						local outputs = vggmodel:forward(inputs)
-						local f = criterion:forward(outputs, labels)
-						local df_dw = criterion:backward(outputs, labels)
-						vggmodel:backward(inputs, df_dw)
-						
-						grad:mul(1/inputs:size(1))
-						return f, grad
+				local weights, grad = vggmodel:getParameters()
+				local feval = function(x)
+					collectgarbage()
+					if x ~= weights then
+						weights:copy(x)
 					end
-					optim.sgd(feval, weights, {
-						learningRates = learningRates,
-						weightDecays = weightDecays,
-						learningRate = baseLearningRate,
-						momentum = 0.9,
-					})
-					xlua.progress(i, #train)
-			end
-			--save model after each iteration
-			vggmodel = vggmodel:clearState()
-			torch.save(modelName, vggmodel)
-			-- print validation set results at end of epoch
-			collectgarbage()
-			local loss = 0
-			for v = 1, #valid, 20 do
-				local endIndex = math.min(#valid, v + 20 - 1)
-				local batch = loadBatch(utils.subrange(valid, v, endIndex))
-				local outputs = vggmodel:forward(zeromean(batch:double()):cuda())
-				loss = loss +  criterion:forward(outputs, validL[{{v, endIndex}}]:clone():cuda())
-			end
-			print(string.format("loss after epoch %d is %f", epoch, loss))
+					grad:zero()
+					local outputs = vggmodel:forward(inputs)
+					local f = criterion:forward(outputs, labels)
+					local df_dw = criterion:backward(outputs, labels)
+					vggmodel:backward(inputs, df_dw)
+					
+					grad:mul(1/inputs:size(1))
+					return f, grad
+				end
+				optim.sgd(feval, weights, {
+					learningRates = learningRates,
+					weightDecays = weightDecays,
+					learningRate = baseLearningRate,
+					momentum = 0.9,
+				})
+				xlua.progress(i, #train)
+		end
+		--save model after each iteration
+		vggmodel = vggmodel:clearState()
+		torch.save(modelName, vggmodel)
+		-- print validation set results at end of epoch
+		collectgarbage()
+		local loss = 0
+		for v = 1, #valid, 20 do
+			local endIndex = math.min(#valid, v + 20 - 1)
+			local batch = loadBatch(utils.subrange(valid, v, endIndex))
+			local outputs = vggmodel:forward(zeromean(batch:double()):cuda())
+			loss = loss +  criterion:forward(outputs, validL[{{v, endIndex}}]:clone():cuda())
+		end
+		print(string.format("loss after epoch %d is %f", epoch, loss))
 	end
 end
 collectgarbage()
