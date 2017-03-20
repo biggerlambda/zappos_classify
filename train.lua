@@ -94,34 +94,34 @@ for epoch = 1, params.epoch do
 		print(string.format("Training for epoch %d", epoch))
 		local shuff_index = torch.randperm(#train)
 		for i = 1, #train, params.batchSize do
-				local j = shuff_index[i]
-				local endInd = math.min(j + params.batchSize - 1, #train)
-				local batch = loadBatch(utils.subrange(train, j, endInd))
-				local inputs = zeromean(batch:double()):cuda()
-				local labels = trainL[{{j, endInd}}]:double():clone():cuda()
-					
-				local weights, grad = vggmodel:getParameters()
-				local feval = function(x)
-					collectgarbage()
-					if x ~= weights then
-						weights:copy(x)
-					end
-					grad:zero()
-					local outputs = vggmodel:forward(inputs)
-					local f = criterion:forward(outputs, labels)
-					local df_dw = criterion:backward(outputs, labels)
-					vggmodel:backward(inputs, df_dw)
-					
-					grad:mul(1/inputs:size(1))
-					return f, grad
+			local j = shuff_index[i]
+			local endInd = math.min(j + params.batchSize - 1, #train)
+			local batch = loadBatch(utils.subrange(train, j, endInd))
+			local inputs = zeromean(batch:double()):cuda()
+			local labels = trainL[{{j, endInd}}]:double():clone():cuda()
+				
+			local weights, grad = vggmodel:getParameters()
+			local feval = function(x)
+				collectgarbage()
+				if x ~= weights then
+					weights:copy(x)
 				end
-				optim.sgd(feval, weights, {
-					learningRates = learningRates,
-					weightDecays = weightDecays,
-					learningRate = baseLearningRate,
-					momentum = 0.9,
-				})
-				xlua.progress(i, #train)
+				grad:zero()
+				local outputs = vggmodel:forward(inputs)
+				local f = criterion:forward(outputs, labels)
+				local df_dw = criterion:backward(outputs, labels)
+				vggmodel:backward(inputs, df_dw)
+				
+				grad:mul(1/inputs:size(1))
+				return f, grad
+			end
+			optim.sgd(feval, weights, {
+				learningRates = learningRates,
+				weightDecays = weightDecays,
+				learningRate = baseLearningRate,
+				momentum = 0.9,
+			})
+			xlua.progress(i, #train)
 		end
 		--save model after each iteration
 		vggmodel = vggmodel:clearState()
