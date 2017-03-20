@@ -52,5 +52,5 @@ VGG input mean in torch format [here](https://www.dropbox.com/s/7nlajnouusadyx4/
 A bit unclean right now. Using a utility like `find`, place the files belonging to shoes into "shoes.txt", those from sandals into "sandals.txt", boots into "boots.txt" and slippers into "slippers.txt". Start training. 
 
 ## Using existing model
-Download model from [here](). Use `predict.lua` to predict for an image.
+Download trained model from [here](https://www.dropbox.com/s/6eep91ncsf4us6e/vggmodel.t7?dl=0) and input mean from [here](https://www.dropbox.com/s/7nlajnouusadyx4/VGG_mean.t7?dl=0). Use `predict.lua` to predict for an image.
 
