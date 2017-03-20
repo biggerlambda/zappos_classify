@@ -56,7 +56,6 @@ local vggmodel = loadcaffe.load("VGG_CNN_M_deploy.prototxt", "VGG_CNN_M.caffemod
 vggmodel:remove(24)
 vggmodel:remove(23)
 
---local origParams = vggmodel:getParameters()
 -- add linear layer 
 vggmodel:add(nn.Linear(4096, 4):cuda())
 vggmodel:add(nn.LogSoftMax():cuda())
