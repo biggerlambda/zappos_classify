@@ -10,7 +10,7 @@ local utils = require "utils"
 local cmd = torch:CmdLine()
 cmd:text()
 cmd:option("-im", "", "image file name")
-cmd:option("-modelFile", "model_epoch7.t7", "model file name")
+cmd:option("-modelFile", "vggmodel.t7", "model file name")
 cmd:option("-meanFile", "VGG_mean.t7", "mean file name")
 
 params = cmd:parse(arg)
